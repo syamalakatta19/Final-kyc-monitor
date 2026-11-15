@@ -45,44 +45,6 @@ This project provides a digital solution that helps bank administrators manage c
 | Werkzeug | Password hashing |
 | VS Code | Development environment |
 
-## 📂 Project Structure
-KYC_Monitor_New/
-│
-├── backend/
-│   ├── app.py
-│   ├── database.py
-│   └── secure_admin.py
-│
-├── frontend/
-│   ├── templates/
-│   │   ├── base.html
-│   │   ├── sidebar.html
-│   │   ├── navbar.html
-│   │   ├── dashboard.html
-│   │   ├── login.html
-│   │   ├── customers.html
-│   │   ├── branches.html
-│   │   ├── joint_holders.html
-│   │   ├── rekyc_schedules.html
-│   │   ├── monthly_kyc_report.html
-│   │   ├── branch_wise_report.html
-│   │   └── ...
-│   │
-│   └── static/
-│       ├── css/
-│       │   ├── style.css
-│       │   └── modern.css
-│       │
-│       └── js/
-│           ├── script.js
-│           ├── modern.js
-│           └── dashboard-chart.js
-│
-├── backup_original_templates/
-├── .env.example
-├── .gitignore
-├── requirements.txt
-└── README.md
 
 ⚙️ Installation and Setup
 
