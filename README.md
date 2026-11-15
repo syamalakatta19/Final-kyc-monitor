@@ -1,179 +1,240 @@
-# 🏦 KYC Document Expiry Monitoring System
+# KYC Document Expiry Monitor for Bank Branches
 
-### Smart Banking Compliance & Customer KYC Management
+A web-based **banking compliance management prototype** that helps branch administrators monitor customer identity-document expiry, schedule and complete re-KYC, and review branch-wise pending work. Built with **Python, Flask, SQLite, HTML, CSS, JavaScript, Bootstrap, and Chart.js**.
 
-A web-based **KYC Document Expiry Monitoring System** developed using Python Flask and MySQL to help bank branches manage customer KYC records, monitor document expiry dates, schedule re-KYC activities, and generate compliance reports.
+> **Project scope:** Educational/college demonstration. This application is not certified for use with real banking customer data or production compliance operations.
 
-The system provides a centralized dashboard with a consistent, professional user interface to simplify banking compliance management.
+## Problem Statement
 
----
+Bank branches must periodically review customer KYC (Know Your Customer) documents and follow up when identity proofs are nearing expiration. The project addresses two principal use cases:
 
-## 📌 Project Overview
+1. **Scan customer records for expiring ID proofs and schedule re-KYC.**
+2. **Produce a branch-wise report of pending re-KYC work.**
 
-Banks need to maintain updated Know Your Customer (KYC) documents for their customers. Manually tracking document expiry dates can lead to delays, outdated records, and compliance issues.
+It also addresses two data-handling challenges: customer dates of birth supplied in different text formats, and joint account holders who share an account but have **independent KYC dates**.
 
-This project provides a digital solution that helps bank administrators manage customer information, monitor KYC expiry status, and organize re-KYC schedules efficiently.
+## Features
 
-## ✨ Key Features
+- **Administrator access:** Hashed-password login, logout, session management, and a local recovery-code flow for forgotten passwords.
+- **Dashboard:** Customer/KYC summary counts, expiry alerts, monthly expiry chart, and branch-level overview.
+- **Customer management:** Add, view, edit, search, and delete customer records; store account and KYC document details.
+- **Branch management:** Register and maintain bank branches; associate customers with branches.
+- **Joint account holders:** Maintain separate KYC documents, issue dates, and expiry dates for holders linked to an existing customer account.
+- **Expiry monitoring:** Classify documents as **Valid**, **Expiring Soon** (within 30 days), **Expired**, or unavailable/unknown when required information is missing.
+- **Re-KYC scheduling:** Schedule or reschedule customer and joint-holder appointments, track statuses and remarks, and record renewed document details when completing re-KYC.
+- **Reports:** Monthly KYC expiry views, branch-wise summaries including pending re-KYC, filters, and **Excel (.xlsx) exports**.
+- **DOB normalization:** Accept `YYYY-MM-DD`, `DD-MM-YYYY`, and `MM/DD/YYYY` and normalize newly entered dates.
+- **Shared interface:** Consistent navigation across authenticated pages, responsive tables, and a minimal banking-themed UI.
 
-- **Admin Login:** Secure administrator authentication.
-- **Dashboard:** Displays total customers, valid KYC, expiring KYC, expired KYC, and pending re-KYC schedules.
-- **Customer Management:** Add, view, edit, and delete customer records.
-- **KYC Expiry Monitoring:** Automatically identifies documents as Valid, Expiring Soon, or Expired.
-- **Branch Management:** Manage bank branches and their information.
-- **Joint Account Management:** Maintain information about joint account holders.
-- **Re-KYC Scheduling:** Schedule, update, and track customer re-KYC activities.
-- **Monthly KYC Reports:** Generate monthly KYC expiry reports.
-- **Branch-Wise Reports:** Monitor KYC information branch by branch.
-- **Excel Export:** Export monthly and branch-wise reports into Excel files.
-- **Notifications:** View KYC expiry notifications through the dashboard.
-- **Consistent UI:** Standardized navigation, sidebar, dashboard, and page styling.
+## Technology Stack
 
-## 🛠️ Technologies Used
-
-| Technology | Purpose |
+| Layer | Technology |
 |---|---|
-| Python | Backend programming |
-| Flask | Web application framework |
-| MySQL | Database management |
-| HTML5 | Frontend structure |
-| CSS3 | Styling and responsive design |
-| JavaScript | Frontend interactions |
-| Bootstrap | UI components |
-| Chart.js | Dashboard visualizations |
-| OpenPyXL | Excel report generation |
-| Werkzeug | Password hashing |
-| VS Code | Development environment |
+| Backend | Python 3, Flask |
+| Database | SQLite3 (Python standard library) |
+| Frontend | HTML5, CSS3, JavaScript |
+| UI | Bootstrap 5, Bootstrap Icons |
+| Charts | Chart.js |
+| Excel exports | openpyxl |
+| Configuration | python-dotenv |
+| Authentication | Werkzeug password hashing, Flask sessions |
 
+## Project Structure
 
-⚙️ Installation and Setup
+```text
+KYC_Monitor_New/
+├── backend/
+│   ├── app.py                     # Flask routes and application logic
+│   ├── database.py                # SQLite connection
+│   ├── init_database.py           # Create database tables
+│   ├── create_admin.py            # Create administrator account
+│   ├── secure_admin.py            # Admin password maintenance utility
+│   ├── issue_reset_code.py        # Local password recovery code
+│   └── seed_demo_data.py          # Optional synthetic demo records
+├── frontend/
+│   ├── templates/                 # Login, dashboard, management and report pages
+│   │   └── _navigation.html       # Shared navigation
+│   └── static/
+│       ├── css/style.css          # Shared theme and visual effects
+│       └── js/                    # Dashboard chart and UI scripts
+├── tests/
+│   └── test_workflows.py          # Automated workflow tests
+├── requirements.txt
+└── README.md
+```
 
-1. Clone the Repository
+The application stores its local SQLite database at `KYC_Monitor_New/kyc_monitor.db`. **Do not commit a private or real-data database file to a public repository.**
 
-git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY.git
+## Getting Started
 
-2. Open the Project
+### Prerequisites
 
-cd KYC_Monitor_New
+- Python **3.10 or later** (a supported release recommended)
+- `pip`
+- A modern web browser
 
-3. Create a Virtual Environment
+**MySQL is not required.** SQLite is built into Python.
 
+### 1. Download and open the project
+
+```bash
+git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
+cd YOUR_REPOSITORY
+```
+
+> Replace `YOUR_USERNAME/YOUR_REPOSITORY` with the actual GitHub repository URL. If the repository contains the `KYC_Monitor_New` folder rather than its contents, run `cd KYC_Monitor_New` as well.
+
+### 2. Create a virtual environment
+
+**Windows (Command Prompt):**
+
+```cmd
 python -m venv .venv
-
-Activate it on Windows:
-
 .venv\Scripts\activate
+```
 
-4. Install Dependencies
+**macOS/Linux:**
 
-pip install -r requirements.txt
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
 
-5. Configure MySQL Database
+### 3. Install dependencies
 
-Install and open MySQL Workbench.
+```bash
+python -m pip install -r requirements.txt
+```
 
-Create or restore the required kyc_monitor database.
+### 4. Configure the Flask secret key
 
-Ensure the required tables are available.
+Create a file named **`.env` in the project root**, beside `requirements.txt`:
 
-Note: The repository does not include a database SQL dump. You must prepare the database separately.
+```dotenv
+FLASK_SECRET_KEY=REPLACE_WITH_A_RANDOM_SECRET_KEY
+FLASK_DEBUG=false
+FLASK_HTTPS=false
+```
 
-6. Configure Environment Variables
+Generate a key locally:
 
-Create a .env file in the project root using .env.example.
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
 
-MYSQL_HOST=localhost
-MYSQL_PORT=3306
-MYSQL_USER=root
-MYSQL_PASSWORD=your_mysql_password
-MYSQL_DATABASE=kyc_monitor
+Paste the generated value in `.env`. Keep that file private. `FLASK_HTTPS=false` is for local HTTP development; deploy only behind properly configured HTTPS and enable secure cookies in production.
 
-FLASK_SECRET_KEY=your_secret_key
+### 5. Initialize SQLite and create an admin
 
-Replace the sample values with your local database credentials and a strong secret key.
+For a fresh installation:
 
-7. Run the Application
+```bash
+python backend/init_database.py
+python backend/create_admin.py
+```
 
-Open the backend folder:
+Follow the terminal prompts to select an administrator username and strong password (12 or more characters).
 
-cd backend
+**Existing users:** If you have a database containing your records, back it up before replacing or reinitializing anything. `init_database.py` creates missing tables; it does not import data from another computer's database.
 
-Start the Flask application:
+### 6. Start the website
 
-python app.py
+```bash
+python backend/app.py
+```
 
-8. Open in Browser
+Open **http://127.0.0.1:5000** in your browser and sign in with the administrator account you created.
 
-http://127.0.0.1:5000
+### 7. Optional: Add fictional demo records
 
-Log in using an administrator account configured in your database.
+After initializing an **empty business database**, you may run:
 
-📊 KYC Expiry Status Logic
+```bash
+python backend/seed_demo_data.py
+```
 
-The system automatically determines KYC document status based on the expiry date.
+This inserts synthetic branches, customers, joint holders, and an appointment for demonstration. The script refuses to insert demo data if the relevant business tables already contain records; it does not alter administrator credentials.
 
-Status
+## How to Use
 
-Condition
+1. **Create branches** in *Branch Management*.
+2. **Add customers** and enter their account, identity-document, issue-date, and expiry-date details.
+3. **Add joint holders** to an existing account, recording KYC details separately for each individual.
+4. **Review the dashboard** for upcoming or expired documents.
+5. **Schedule re-KYC** through the customer or joint-holder actions.
+6. **Complete re-KYC** by recording the renewed identity document and valid issue/expiry dates.
+7. **Review branch-wise and monthly reports** and export Excel files where needed.
 
-Valid
+## Forgot Password (Local Demo)
 
-Expiry date is more than 30 days away
+This version does **not** send a password reset email. Recovery requires authorized local access to the server/database host:
 
-Expiring Soon
+```bash
+python backend/issue_reset_code.py
+```
 
-Expiry date is within the next 30 days
+Enter the admin username to generate a **single-use code valid for 15 minutes**. Visit `/forgot-password` on the running website and submit the username, code, and new password. Do not share the code.
 
-Expired
+## Testing
 
-Expiry date has already passed
+From the project root:
 
-🎯 Project Objectives
+```bash
+python -m unittest discover -s tests -v
+```
 
-Reduce manual KYC tracking.
+The repository includes automated tests for core workflows. You should also manually verify login, customer search, document expiry status, scheduling, renewals, and both report pages in the browser.
 
-Improve customer document management.
+## Screenshots
 
-Identify expired and expiring KYC documents.
+Screenshots are not bundled in this README. To display them on GitHub, add sanitized images to a `screenshots/` directory and uncomment/update the links below:
 
-Simplify re-KYC scheduling.
+```markdown
+<!-- ![Dashboard](screenshots/dashboard.png) -->
+<!-- ![Customer Management](screenshots/customers.png) -->
+<!-- ![Re-KYC Schedules](screenshots/rekyc-schedules.png) -->
+<!-- ![Branch-wise Report](screenshots/branch-report.png) -->
+```
 
-Improve branch-wise compliance monitoring.
+Use fictional records in screenshots; avoid real names, account numbers, and identity-document information.
 
-Generate organized banking compliance reports.
+## Security and Privacy
 
-🚀 Future Enhancements
+**Before pushing to a public GitHub repository:**
 
-SMS and email notifications for KYC expiry reminders.
+- **Do not upload `.env`.** It contains the Flask session secret.
+- **Do not upload `kyc_monitor.db`** if it contains an admin account, customer information, or other private data. The supplied project ZIP includes these files; remove them from the GitHub copy.
+- Do not upload real KYC documents, customer records, password-reset codes, or credentials.
+- Ignore `.venv/`, `__pycache__/`, `*.pyc`, and local log files.
+- Generate a new secret key for each deployment. Use a separate demo database for screenshots and demonstrations.
+- A classroom Flask application needs additional security, access control, privacy, auditing, backup, and deployment review before real-world banking use.
 
-AI-based KYC document verification.
+Suggested root `.gitignore`:
 
-Customer self-service portal.
+```gitignore
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.log
+kyc_monitor.db
+*.db-wal
+*.db-shm
+```
 
-Advanced analytics and compliance predictions.
+> `.gitignore` does not remove files already committed to Git history. If a credential or private database was previously committed, remove it from tracking/history as appropriate and rotate exposed secrets.
 
-Cloud deployment and real-time monitoring.
+## Known Limitations and Future Improvements
 
-🔒 Security Notes
+- Local SQLite is convenient for demonstrations; deployment with multiple concurrent staff members would require additional architecture and operational planning.
+- Password recovery is terminal-assisted, not verified-email based.
+- Historical versions of renewed KYC documents are not retained as a dedicated audit trail.
+- Automated SMS/email reminders, stronger role-based permissions, comprehensive audit logs, and production-grade security are not included.
+- All workflows should be validated with test records and suitable security/privacy procedures before use beyond a college demonstration.
 
-Admin passwords are stored using secure password hashing.
+## License
 
-Database credentials are configured through environment variables.
-
-Do not upload your actual .env file or sensitive database credentials to GitHub.
-
-Use HTTPS and a production WSGI server before deployment.
-
-👩‍💻 Developed By
-
-Syamala Katta
-
-Project: KYC Document Expiry Monitoring System
-
-Domain: Banking Compliance Management
-
-Technologies: Python | Flask | MySQL | HTML | CSS | JavaScript | Bootstrap
-
-⭐ If you find this project useful, consider giving this repository a star!
-
-Thank you for visiting my project!
+No license is specified in the supplied project. Add a `LICENSE` file if the project owners decide to publish it under an open-source license.
