@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Re-KYC Schedule | KYC Monitor</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    
+</head>
+
+<body class="kyc-unified-page page-edit-rekyc-schedule edit-rekyc-page">
+{% include "_navigation.html" %}
+<div class="kyc-unified-content">
+
+    <!-- NAVBAR -->
+
+
+    <!-- MAIN CONTENT -->
+    <main class="edit-rekyc-main">
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show"
+                         role="alert">
+                        {{ message }}
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="alert"
+                                aria-label="Close">
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <section class="edit-rekyc-card">
+
+            <div class="edit-rekyc-heading">
+                <h2>
+                    <i class="bi bi-calendar-check me-2"></i>
+                    Edit Re-KYC Schedule
+                </h2>
+
+                <p>Update the appointment date, status and remarks.</p>
+            </div>
+
+            <!-- CUSTOMER INFORMATION -->
+            <div class="customer-info">
+
+                <h5>
+                    <i class="bi bi-person-circle me-2"></i>
+                    Customer Information
+                </h5>
+
+                <p>
+                    <strong>Customer Name:</strong>
+                    {{ schedule.full_name }}
+                </p>
+
+                <p>
+                    <strong>Customer Number:</strong>
+                    {{ schedule.customer_number or '-' }}
+                </p>
+
+                <p>
+                    <strong>Account Number:</strong>
+                    {{ schedule.account_number or '-' }}
+                </p>
+
+                <p>
+                    <strong>Schedule ID:</strong>
+                    #{{ schedule.schedule_id }}
+                </p>
+
+            </div>
+
+            <!-- EDIT FORM -->
+            <form method="POST"
+                  action="{{ url_for('edit_rekyc_schedule', schedule_id=schedule.schedule_id) }}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+                <!-- SCHEDULE DATE -->
+                <div class="mb-3">
+
+                    <label for="scheduled_date" class="form-label">
+                        Scheduled Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="scheduled_date"
+                        name="scheduled_date"
+                        class="form-control"
+                        value="{{ schedule.scheduled_date.strftime('%Y-%m-%d') if schedule.scheduled_date else '' }}"
+                        required
+                    >
+
+                </div>
+
+                <!-- STATUS -->
+                <div class="mb-3">
+
+                    <label for="status" class="form-label">
+                        Schedule Status
+                    </label>
+
+                    <select id="status"
+                            name="status"
+                            class="form-select"
+                            required>
+
+                        <option value="Pending"
+                            {% if schedule.status == 'Pending' %}selected{% endif %}>
+                            Pending
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <!-- REMARKS -->
+                <div class="mb-4">
+
+                    <label for="remarks" class="form-label">
+                        Remarks
+                    </label>
+
+                    <textarea
+                        id="remarks"
+                        name="remarks"
+                        class="form-control"
+                        rows="4"
+                        placeholder="Enter appointment remarks..."
+                    >{{ schedule.remarks or '' }}</textarea>
+
+                </div>
+
+                <!-- BUTTONS -->
+                <div class="d-flex flex-wrap gap-2">
+
+                    <button type="submit"
+                            class="save-rekyc-btn">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Update Schedule
+                    </button>
+
+                    <a href="{{ url_for('view_rekyc_schedules') }}"
+                       class="cancel-rekyc-btn">
+                        <i class="bi bi-x-circle me-1"></i>
+                        Cancel
+                    </a>
+
+                </div>
+
+            <p class="text-muted mt-2">To mark this appointment completed, enter the renewed document details using the Complete Re-KYC action from the schedules page.</p></form>
+
+        </section>
+
+    </main>
+
+    <!-- BOOTSTRAP JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</div><!-- /.kyc-unified-content -->
+</body>
+</html>

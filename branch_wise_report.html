@@ -1,0 +1,401 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Branch-wise KYC Report | KYC Monitor</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="kyc-unified-page page-branch-wise-report">
+{% include "_navigation.html" %}
+<div class="kyc-unified-content">
+
+<!-- HEADER -->
+
+
+<main class="main-container">
+
+    <!-- PAGE HEADING -->
+    <div class="page-heading">
+
+        <div>
+            <h1>
+                <i class="bi bi-building-check me-2"></i>
+                Branch-wise KYC Report
+            </h1>
+
+            <p>
+                Monitor customer KYC compliance and expiry details across bank branches.
+            </p>
+        </div>
+
+        <!-- EXPORT EXCEL AND PRINT BUTTONS -->
+        <div class="d-flex gap-2 flex-wrap no-print">
+
+            <a href="{{ url_for(
+                        'export_branch_wise_report',
+                        branch_id=selected_branch or '',
+                        status=selected_status or ''
+                    ) }}"
+               class="btn-export">
+                <i class="bi bi-file-earmark-excel me-1"></i>
+                Export Excel
+            </a>
+
+            <button onclick="window.print()" class="btn-print">
+                <i class="bi bi-printer me-1"></i>
+                Print / Save PDF
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show no-print"
+                     role="alert">
+                    {{ message }}
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert">
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- SUMMARY CARDS -->
+    <div class="row g-3">
+
+        <!-- TOTAL -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="summary-card">
+                <div class="summary-top">
+                    <span class="summary-label">Total Customers</span>
+                    <span class="summary-icon icon-blue">
+                        <i class="bi bi-people-fill"></i>
+                    </span>
+                </div>
+
+                <div class="summary-value">{{ total_count }}</div>
+                <div class="summary-note">Customers in selected report</div>
+            </div>
+        </div>
+
+        <!-- EXPIRED -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="summary-card">
+                <div class="summary-top">
+                    <span class="summary-label">Expired KYC</span>
+                    <span class="summary-icon icon-red">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </span>
+                </div>
+
+                <div class="summary-value text-danger">{{ expired_count }}</div>
+                <div class="summary-note">KYC renewal required</div>
+            </div>
+        </div>
+
+        <!-- EXPIRING -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="summary-card">
+                <div class="summary-top">
+                    <span class="summary-label">Expiring Soon</span>
+                    <span class="summary-icon icon-orange">
+                        <i class="bi bi-clock-history"></i>
+                    </span>
+                </div>
+
+                <div class="summary-value warning-summary-value">
+                    {{ expiring_count }}
+                </div>
+                <div class="summary-note">Expiry within 30 days</div>
+            </div>
+        </div>
+
+        <!-- VALID -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="summary-card">
+                <div class="summary-top">
+                    <span class="summary-label">Valid KYC</span>
+                    <span class="summary-icon icon-green">
+                        <i class="bi bi-shield-check"></i>
+                    </span>
+                </div>
+
+                <div class="summary-value text-success">{{ valid_count }}</div>
+                <div class="summary-note">More than 30 days remaining</div>
+            </div>
+        </div>
+
+    </div>
+
+    <section class="content-panel kyc-pending-summary">
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <div><h5 class="panel-title mb-1">Pending Re-KYC by Branch</h5><p class="panel-description mb-0">Pending customer and joint-holder appointments within the selected report.</p></div>
+        <span class="badge text-bg-warning">{{ pending_count }} Pending Appointments</span>
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-3">
+      {% for branch_name, count in branch_pending_summary.items() %}
+        <span class="kyc-branch-count">{{ branch_name }}: <strong>{{ count }}</strong></span>
+      {% else %}
+        <span class="text-muted">No pending re-KYC appointments for this selection.</span>
+      {% endfor %}
+      </div>
+    </section>
+
+    <!-- FILTER PANEL -->
+    <section class="content-panel no-print">
+
+        <h5 class="panel-title">
+            <i class="bi bi-funnel me-2"></i>
+            Report Filters
+        </h5>
+
+        <p class="panel-description">
+            Select a branch and KYC status to narrow down the report.
+        </p>
+
+        <form method="GET" action="{{ url_for('branch_wise_report') }}">
+
+            <div class="row g-3 align-items-end">
+
+                <div class="col-12 col-md-5">
+                    <label class="form-label">Select Bank Branch</label>
+
+                    <select name="branch_id" class="form-select">
+                        <option value="">All Branches</option>
+
+                        {% for branch in branches %}
+                        <option value="{{ branch.branch_id }}"
+                            {% if selected_branch|string == branch.branch_id|string %}
+                                selected
+                            {% endif %}>
+                            {{ branch.branch_name }} - {{ branch.city }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label">KYC Status</label>
+
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+
+                        <option value="Valid"
+                            {% if selected_status == "Valid" %}selected{% endif %}>
+                            Valid
+                        </option>
+
+                        <option value="Expiring Soon"
+                            {% if selected_status == "Expiring Soon" %}selected{% endif %}>
+                            Expiring Soon
+                        </option>
+
+                        <option value="Expired"
+                            {% if selected_status == "Expired" %}selected{% endif %}>
+                            Expired
+                        </option>
+
+                        <option value="Pending Re-KYC" {% if selected_status == "Pending Re-KYC" %}selected{% endif %}>
+                            Pending Re-KYC Only
+                        </option>
+
+                        <option value="Not Set"
+                            {% if selected_status == "Not Set" %}selected{% endif %}>
+                            Not Set
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn-filter flex-grow-1">
+                        <i class="bi bi-search me-1"></i>
+                        Apply Filter
+                    </button>
+
+                    <a href="{{ url_for('branch_wise_report') }}"
+                       class="btn-reset">
+                        Reset
+                    </a>
+                </div>
+
+            </div>
+        </form>
+    </section>
+
+    <!-- CUSTOMER REPORT TABLE -->
+    <section class="content-panel">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+
+            <div>
+                <h5 class="panel-title mb-1">
+                    <i class="bi bi-table me-2"></i>
+                    Customer KYC Details
+                </h5>
+
+                <p class="panel-description mb-0">
+                    Branch-wise customer expiry and compliance information.
+                </p>
+            </div>
+
+            <span class="badge rounded-pill text-bg-light border px-3 py-2">
+                {{ total_count }} Records
+            </span>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table report-table table-hover">
+
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Customer Number</th>
+                        <th>Customer Name</th>
+                        <th>Phone</th>
+                        <th>Account Number</th>
+                        <th>Branch</th>
+                        <th>City</th>
+                        <th>KYC Expiry Date</th>
+                        <th>Days Left</th>
+                        <th>KYC Status</th>
+                        <th>Pending Re-KYC</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for customer in customers %}
+
+                    <tr>
+                        <td>{{ loop.index }}</td>
+
+                        <td>
+                            <strong>{{ customer.customer_number or '-' }}</strong>
+                        </td>
+
+                        <td class="customer-name">
+                            {{ customer.full_name }}
+                        </td>
+
+                        <td>{{ customer.phone or '-' }}</td>
+
+                        <td>{{ customer.account_number or '-' }}</td>
+
+                        <td>{{ customer.branch_name or 'Not Assigned' }}</td>
+
+                        <td>{{ customer.city or '-' }}</td>
+
+                        <td>
+                            {% if customer.kyc_expiry_date %}
+                                {{ customer.kyc_expiry_date.strftime('%d-%m-%Y') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if customer.days_left is not none %}
+                                {{ customer.days_left }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if customer.status == "Valid" %}
+
+                                <span class="status status-valid">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Valid
+                                </span>
+
+                            {% elif customer.status == "Expiring Soon" %}
+
+                                <span class="status status-expiring">
+                                    <i class="bi bi-clock me-1"></i>
+                                    Expiring Soon
+                                </span>
+
+                            {% elif customer.status == "Expired" %}
+
+                                <span class="status status-expired">
+                                    <i class="bi bi-exclamation-circle me-1"></i>
+                                    Expired
+                                </span>
+
+                            {% else %}
+
+                                <span class="status status-notset">
+                                    Not Set
+                                </span>
+
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if customer.pending_rekyc %}
+                                <span class="badge text-bg-warning">Pending</span>
+                            {% else %}
+                                <span class="badge text-bg-light border">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="11" class="empty-state">
+                            <i class="bi bi-folder2-open"></i>
+                            <strong>No customer records found</strong>
+                            <div class="small mt-1">
+                                Try changing your branch or status filters.
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="report-footer">
+        KYC Document Expiry Monitor
+        <span class="mx-2">|</span>
+        Banking Compliance Management System
+    </footer>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</div><!-- /.kyc-unified-content -->
+</body>
+</html>

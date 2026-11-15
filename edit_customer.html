@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Customer | KYC Monitor</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="kyc-unified-page page-edit-customer">
+{% include "_navigation.html" %}
+<div class="kyc-unified-content">
+
+<!-- Top Header -->
+
+
+<main class="main-container">
+
+    <!-- Page Heading -->
+    <div class="page-heading">
+        <div>
+            <h2><i class="bi bi-person-gear me-2"></i>Edit Customer</h2>
+            <p>Manage customer details and update KYC information.</p>
+        </div>
+
+        <a href="{{ url_for('customers') }}" class="back-btn">
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Customers
+        </a>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Form Card -->
+    <div class="form-card">
+
+        <div class="card-header-custom">
+            <h5><i class="bi bi-pencil-square me-2"></i>Customer Information</h5>
+            <p>Update the information below and save your changes.</p>
+        </div>
+
+        <div class="card-body-custom">
+
+            <form method="POST"
+                  action="{{ url_for('edit_customer', customer_id=customer.customer_id) }}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+                <!-- Personal Information -->
+                <div class="form-section">
+
+                    <h5 class="section-heading">
+                        <span class="section-icon"><i class="bi bi-person"></i></span>
+                        Personal Information
+                    </h5>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Customer Number *</label>
+                            <input type="text" name="customer_number"
+                                   class="form-control"
+                                   value="{{ customer.customer_number or '' }}" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" name="full_name"
+                                   class="form-control"
+                                   value="{{ customer.full_name or '' }}" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="text" name="dob"
+                                   class="form-control"
+                                   value="{{ customer.dob.strftime('%Y-%m-%d') if customer.dob else '' }}" placeholder="YYYY-MM-DD, DD-MM-YYYY, or MM/DD/YYYY">
+<small class="form-text">DOB formats: YYYY-MM-DD, DD-MM-YYYY, MM/DD/YYYY.</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Phone Number *</label>
+                            <input type="tel" name="phone"
+                                   class="form-control"
+                                   value="{{ customer.phone or '' }}" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email"
+                                   class="form-control"
+                                   value="{{ customer.email or '' }}">
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Account Information -->
+                <div class="form-section">
+
+                    <h5 class="section-heading">
+                        <span class="section-icon"><i class="bi bi-bank"></i></span>
+                        Account Information
+                    </h5>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Branch *</label>
+                            <select name="branch_id" class="form-select" required>
+                                <option value="">Select Branch</option>
+
+                                {% for branch in branches %}
+                                    <option value="{{ branch.branch_id }}"
+                                        {% if customer.branch_id|string == branch.branch_id|string %}selected{% endif %}>
+                                        {{ branch.branch_name }} - {{ branch.city }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Account Type *</label>
+                            <select name="account_type" class="form-select" required>
+                                <option value="">Select Account Type</option>
+
+                                <option value="Savings" {% if customer.account_type == 'Savings' %}selected{% endif %}>Savings</option>
+                                <option value="Current" {% if customer.account_type == 'Current' %}selected{% endif %}>Current</option>
+                                <option value="Fixed Deposit" {% if customer.account_type == 'Fixed Deposit' %}selected{% endif %}>Fixed Deposit</option>
+                                <option value="Recurring Deposit" {% if customer.account_type == 'Recurring Deposit' %}selected{% endif %}>Recurring Deposit</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Account Number *</label>
+                            <input type="text" name="account_number"
+                                   class="form-control"
+                                   value="{{ customer.account_number or '' }}" required>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- KYC Information -->
+                <div class="form-section">
+
+                    <h5 class="section-heading">
+                        <span class="section-icon"><i class="bi bi-file-earmark-check"></i></span>
+                        KYC Information
+                    </h5>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">KYC Document *</label>
+                            <select name="kyc_document" class="form-select" required>
+                                <option value="">Select Document</option>
+
+                                <option value="Aadhaar" {% if customer.kyc_document == 'Aadhaar' %}selected{% endif %}>Aadhaar</option>
+                                <option value="PAN" {% if customer.kyc_document == 'PAN' %}selected{% endif %}>PAN</option>
+                                <option value="Passport" {% if customer.kyc_document == 'Passport' %}selected{% endif %}>Passport</option>
+                                <option value="Voter ID" {% if customer.kyc_document == 'Voter ID' %}selected{% endif %}>Voter ID</option>
+                                <option value="Driving License" {% if customer.kyc_document == 'Driving License' %}selected{% endif %}>Driving License</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">KYC Issue Date *</label>
+                            <input type="date" name="kyc_issue_date"
+                                   class="form-control"
+                                   value="{{ customer.kyc_issue_date.strftime('%Y-%m-%d') if customer.kyc_issue_date else '' }}"
+                                   required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">KYC Expiry Date *</label>
+                            <input type="date" name="kyc_expiry_date"
+                                   class="form-control"
+                                   value="{{ customer.kyc_expiry_date.strftime('%Y-%m-%d') if customer.kyc_expiry_date else '' }}"
+                                   required>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="form-footer">
+                    <div class="d-flex justify-content-end gap-3 flex-wrap">
+
+                        <a href="{{ url_for('customers') }}" class="cancel-btn">
+                            <i class="bi bi-x-circle me-1"></i>
+                            Cancel
+                        </a>
+
+                        <button type="submit" class="save-btn">
+                            <i class="bi bi-check-circle me-1"></i>
+                            Update Customer
+                        </button>
+
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        KYC Monitor &copy; 2026 | Banking Compliance Management System
+    </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</div><!-- /.kyc-unified-content -->
+</body>
+</html>

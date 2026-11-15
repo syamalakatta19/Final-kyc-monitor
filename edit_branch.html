@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Branch | KYC Monitor</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="kyc-unified-page dashboard-page">
+{% include "_navigation.html" %}
+<div class="kyc-unified-content">
+
+    
+
+    <div class="dashboard-layout">
+
+        
+
+        <main class="dashboard-content">
+
+            <div class="branch-page-header">
+                <div>
+                    
+                    </div>
+
+                    <h1>Edit Branch</h1>
+                    <p>Update the registered bank branch information.</p>
+                </div>
+
+                <a href="{{ url_for('branches') }}"
+                   class="branch-back-btn">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Branches
+                </a>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert">
+                            </button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <section class="branch-form-panel">
+
+                <div class="branch-form-heading">
+                    <div class="branch-form-icon">
+                        <i class="bi bi-pencil-square"></i>
+                    </div>
+
+                    <div>
+                        <h3>Update Branch Details</h3>
+                        <p>Modify the information in the fields below.</p>
+                    </div>
+                </div>
+
+                <form method="POST"
+                      action="{{ url_for('edit_branch', branch_id=branch.branch_id) }}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Branch Code</label>
+                            <input type="text"
+                                   name="branch_code"
+                                   class="form-control"
+                                   value="{{ branch.branch_code }}"
+                                   placeholder="Example: BR001"
+                                   required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Branch Name</label>
+                            <input type="text"
+                                   name="branch_name"
+                                   class="form-control"
+                                   value="{{ branch.branch_name }}"
+                                   placeholder="Enter branch name"
+                                   required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">City / Location</label>
+                            <input type="text"
+                                   name="city"
+                                   class="form-control"
+                                   value="{{ branch.city }}"
+                                   placeholder="Enter city"
+                                   required>
+                        </div>
+
+                    </div>
+
+                    <div class="branch-form-actions mt-4">
+
+                        <a href="{{ url_for('branches') }}"
+                           class="branch-cancel-btn">
+                            <i class="bi bi-x-circle"></i>
+                            Cancel
+                        </a>
+
+                        <button type="submit"
+                                class="branch-save-btn">
+                            <i class="bi bi-check-circle"></i>
+                            Update Branch
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+            <footer class="dashboard-footer">
+                KYC Document Expiry Monitor
+                <span> | Banking Compliance System</span>
+            </footer>
+
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</div><!-- /.kyc-unified-content -->
+</body>
+</html>
